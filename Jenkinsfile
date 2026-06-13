@@ -20,17 +20,24 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Load') {
             steps {
-                // Your existing docker build command
-                sh 'docker build -t local/ci-cd:latest .'
+                script {
+                    // Get the short Git commit hash dynamically
+                    def gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    def imageName = "local/ci-cd:${gitCommit}"
 
-                // AUTOMATION: Tell Jenkins to push the image to Minikube automatically
-                echo 'Sideloading image into Minikube...'
-                sh 'minikube image load local/ci-cd:latest'
+                    // 1. Build with the unique tag
+                    sh "docker build -t ${imageName} ."
+
+                    // 2. Load the unique image into Minikube
+                    sh "minikube image load ${imageName}"
+
+                    // 3. Dynamically point Kubernetes to the exact new tag
+                    sh "kubectl set image deployment/ci-cd-deployment ci-cd=${imageName}"
+                }
             }
         }
-
         stage('Deploy to Kubernetes') {
             steps {
                 script {
