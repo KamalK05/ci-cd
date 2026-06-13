@@ -38,19 +38,19 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Minikube') {
             steps {
-                script {
-                    echo 'Applying configurations to local Kubernetes cluster...'
+                // Your build step happens right before this...
 
-                    // Verify k8s folder and file exist before running to prevent hard crashes
-                    if (fileExists('k8s/deployment.yaml')) {
-                        sh 'kubectl apply -f k8s/deployment.yaml'
-                        sh 'kubectl rollout restart deployment/ci-cd-deployment'
-                    } else {
-                        echo '⚠️ WARNING: k8s/deployment.yaml not found! Skipping deployment stage.'
-                    }
-                }
+                // 1. Purge the old image version automatically out of Minikube
+                sh 'minikube image rm local/ci-cd:latest || true'
+
+                // 2. Sideload the newly compiled file
+                sh 'minikube image load local/ci-cd:latest'
+
+                // 3. Re-apply configurations and force restart the pods
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl rollout restart deployment/ci-cd-deployment'
             }
         }
     }
