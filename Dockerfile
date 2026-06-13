@@ -14,7 +14,7 @@ RUN ./gradlew bootJar --no-daemon
 # =======================================================
 FROM edenhill/kafkacat AS runtime
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 EXPOSE 8082
 
