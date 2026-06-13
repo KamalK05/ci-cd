@@ -20,6 +20,17 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                // Your existing docker build command
+                sh 'docker build -t local/ci-cd:latest .'
+
+                // AUTOMATION: Tell Jenkins to push the image to Minikube automatically
+                echo 'Sideloading image into Minikube...'
+                sh 'minikube image load local/ci-cd:latest'
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
