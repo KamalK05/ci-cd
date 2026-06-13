@@ -1,0 +1,38 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.1.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.learning'
+version = ''
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly('org.projectlombok:lombok')
+	annotationProcessor('org.projectlombok:lombok')
+	testCompileOnly('org.projectlombok:lombok:1.18.30')
+	testAnnotationProcessor('org.projectlombok:lombok:1.18.30')
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// Add this block to control how Gradle builds your image
+bootBuildImage {
+	imageName = "local/ci-cd:latest"
+}
