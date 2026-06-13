@@ -1,4 +1,4 @@
-package com.learning.ci_cd;
+package com.learning.continuous;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

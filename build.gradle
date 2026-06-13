@@ -36,3 +36,7 @@ tasks.named('test') {
 bootBuildImage {
 	imageName = "local/ci-cd:latest"
 }
+
+springBoot {
+	mainClass = 'com.learning.continuous.CiCdApplication'
+}
