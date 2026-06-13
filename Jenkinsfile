@@ -10,47 +10,29 @@ pipeline {
             }
         }
 
-        stage('Gradle Build & Containerize') {
+        stage('Build & Deploy to Minikube') {
             steps {
                 script {
-                    echo 'Building application and generating Docker image via Buildpacks...'
-                    // --no-daemon saves memory on your laptop
-                    sh './gradlew bootBuildImage --no-daemon'
-                }
-            }
-        }
-
-        stage('Build & Load') {
-            steps {
-                script {
-                    // Get the short Git commit hash dynamically
+                    // 1. Get the unique short Git commit hash dynamically
                     def gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     def imageName = "local/ci-cd:${gitCommit}"
 
-                    // 1. Build with the unique tag
+                    echo "Building application version: ${imageName}"
+
+                    // 2. Build the Docker image with your unique tag
                     sh "docker build -t ${imageName} ."
 
-                    // 2. Load the unique image into Minikube
+                    // 3. Sideload the unique image directly into Minikube's registry
+                    echo 'Loading image into Minikube...'
                     sh "minikube image load ${imageName}"
 
-                    // 3. Dynamically point Kubernetes to the exact new tag
+                    // 4. Update the live deployment inside Minikube to use this exact new tag
+                    echo 'Updating Kubernetes deployment image tag...'
                     sh "kubectl set image deployment/ci-cd-deployment ci-cd=${imageName}"
+
+                    // 5. Clean up old unused images inside minikube to keep your laptop storage light (Optional)
+                    sh "minikube image prune || true"
                 }
-            }
-        }
-        stage('Deploy to Minikube') {
-            steps {
-                // Your build step happens right before this...
-
-                // 1. Purge the old image version automatically out of Minikube
-                sh 'minikube image rm local/ci-cd:latest || true'
-
-                // 2. Sideload the newly compiled file
-                sh 'minikube image load local/ci-cd:latest'
-
-                // 3. Re-apply configurations and force restart the pods
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl rollout restart deployment/ci-cd-deployment'
             }
         }
     }
