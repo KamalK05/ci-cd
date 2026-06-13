@@ -26,11 +26,15 @@ pipeline {
                     echo 'Loading image into Minikube...'
                     sh "minikube image load ${imageName}"
 
-                    // 4. Update the live deployment inside Minikube to use this exact new tag
+                    // 4. FIX: Ensure the base infrastructure/deployment exists in Minikube first!
+                    echo 'Applying deployment configurations...'
+                    sh 'kubectl apply -f deployment.yaml'
+
+                    // 5. Update the live deployment inside Minikube to use this exact new tag
                     echo 'Updating Kubernetes deployment image tag...'
                     sh "kubectl set image deployment/ci-cd-deployment ci-cd=${imageName}"
 
-                    // 5. Clean up old unused images inside minikube to keep your laptop storage light (Optional)
+                    // 6. Clean up old unused images inside minikube to keep your laptop storage light
                     sh "minikube image prune || true"
                 }
             }
