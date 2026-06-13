@@ -19,3 +19,4 @@ EXPOSE 8082
 
 # This will now perfectly match the 'AS build' stage above!
 COPY --from=build /Volumes/Development/Sample-Wkspace/personal-repos/ci-cd/build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
