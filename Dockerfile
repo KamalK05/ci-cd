@@ -1,10 +1,11 @@
 # =======================================================
 # STAGE 1: Build the application (Must be named 'build')
 # =======================================================
-FROM gradle:8.12-jdk17 AS build
+FROM gradle:8.12-jdk21 AS build
 
 WORKDIR /Volumes/Development/Sample-Wkspace/personal-repos/ci-cd
 COPY . .
+RUN chmod +x gradlew
 # Run your gradle build command to generate the JAR file
 RUN ./gradlew bootJar --no-daemon
 
