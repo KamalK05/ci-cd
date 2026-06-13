@@ -1,4 +1,4 @@
-package com.learning.ci_cd;
+package com.learning.continuous;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
