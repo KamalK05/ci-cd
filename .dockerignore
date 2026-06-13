@@ -1,0 +1,14 @@
+# Ignore database history files causing the permission error
+.mysql_history
+*.history
+
+# Ignore standard build artifacts and tool logs
+.gradle/
+build/
+bin/
+*.log
+
+# Ignore local system/IDE directories
+.DS_Store
+.idea/
+.vscode/
