@@ -19,14 +19,3 @@ EXPOSE 8082
 
 # This will now perfectly match the 'AS build' stage above!
 COPY --from=build /Volumes/Development/Sample-Wkspace/personal-repos/ci-cd/build/libs/*.jar app.jar
-
-ENTRYPOINT ["java", "-jar", "/app.jar"]
-# Stage 2: Run the application
-FROM edenhill/kafkacat AS runtime
-
-# CHANGE THIS LINE: Use a supported JDK 17 image
-FROM eclipse-temurin:17-jre-alpine
-
-EXPOSE 8082  # <-- Keeping your new port 8082 config!
-COPY --from=build build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
