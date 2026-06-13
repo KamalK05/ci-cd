@@ -22,7 +22,7 @@ spec:
         - name: ci-cd
           # Since we are local, we will build this image directly into the local daemon
           image: local/ci-cd:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
 ---
@@ -35,6 +35,6 @@ spec:
   selector:
     app: ci-cd
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 8082
+      targetPort: 8082
       nodePort: 32000

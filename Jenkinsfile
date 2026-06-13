@@ -2,19 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout Code') {
+        stage('Prepare Environment') {
             steps {
-                checkout scm
+                echo 'Initializing local workspace environment...'
+                // Give execution permissions to the gradle wrapper inside the cloned workspace
+                sh 'chmod +x ./gradlew'
             }
         }
 
         stage('Gradle Build & Containerize') {
             steps {
                 script {
-                    // Give execution permissions to the gradle wrapper inside Jenkins
-                    sh 'chmod +x ./gradlew'
-
-                    // Tell Gradle to compile the app and build the Docker image
+                    echo 'Building application and generating Docker image via Buildpacks...'
+                    // --no-daemon saves memory on your laptop
                     sh './gradlew bootBuildImage --no-daemon'
                 }
             }
@@ -23,11 +23,15 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Apply your Kubernetes configurations
-                    sh 'kubectl apply -f k8s/deployment.yaml'
+                    echo 'Applying configurations to local Kubernetes cluster...'
 
-                    // Force K8s to reload the pod with the fresh image Gradle just built
-                    sh 'kubectl rollout restart deployment/ci-cd-deployment'
+                    // Verify k8s folder and file exist before running to prevent hard crashes
+                    if (fileExists('k8s/deployment.yaml')) {
+                        sh 'kubectl apply -f k8s/deployment.yaml'
+                        sh 'kubectl rollout restart deployment/ci-cd-deployment'
+                    } else {
+                        echo '⚠️ WARNING: k8s/deployment.yaml not found! Skipping deployment stage.'
+                    }
                 }
             }
         }

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class ContinuousController {
 
-    @GetMapping("/v1/ciCdInfo")
-    public CicdResponse getProfile() {
-        log.info("/v1/getProfile is executed");
-        return new CicdResponse("My Cicd pipeline is working fine");
+    @GetMapping("/v1/getCiCdInfo")
+    public CicdResponse getCiCdInfo() {
+        log.info("--------- /v1/getCiCdInfo is executed -------- ");
+        return new CicdResponse("My Cicd pipeline is working fine!!");
     }
 }
