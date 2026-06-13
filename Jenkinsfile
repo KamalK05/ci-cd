@@ -28,7 +28,7 @@ pipeline {
 
                     // 4. FIX: Ensure the base infrastructure/deployment exists in Minikube first!
                     echo 'Applying deployment configurations...'
-                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f k8s/deployment.yaml'
 
                     // 5. Update the live deployment inside Minikube to use this exact new tag
                     echo 'Updating Kubernetes deployment image tag...'
