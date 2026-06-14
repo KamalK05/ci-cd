@@ -41,3 +41,7 @@ bootBuildImage {
 springBoot {
 	mainClass = 'com.learning.continuous.CiCdApplication'
 }
+
+bootJar {
+	mainClass = 'com.learning.continuous.CiCdApplication'
+}
