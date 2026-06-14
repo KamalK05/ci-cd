@@ -45,11 +45,11 @@ pipeline {
                     sh "minikube image load ${env.IMAGE_NAME}"
 
                     // 2. Apply your core deployment and service configurations
-                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f k8s/deployment.yaml'
 
                     // 3. AUTOMATION FIX: Apply your ingress routing configuration automatically!
                     echo 'Applying Ingress network routing configuration...'
-                    sh 'kubectl apply -f ingress.yaml'
+                    sh 'kubectl apply -f k8s/ingress.yaml'
 
                     // 4. Trigger the Zero-Downtime Rolling Update with the new version tag
                     sh "kubectl set image deployment/ci-cd-deployment ci-cd=${env.IMAGE_NAME}"
