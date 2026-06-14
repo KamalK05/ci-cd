@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ci-cd-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: continuous.co.in              # <-- Your production-style URL!
+      http:
+        paths:
+          - path: /continuous(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ci-cd-service          # Must match your Service name
+                port:
+                  number: 8082               # Must match your Service port

@@ -2,10 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ci-cd-deployment
-  labels:
-    app: ci-cd
 spec:
-  replicas: 1
+  replicas: 3                     # Run 3 copies for zero-downtime rolling updates
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1                 # Spin up 1 new container before killing an old one
+      maxUnavailable: 0           # Keep all old containers alive until new ones are healthy
   selector:
     matchLabels:
       app: ci-cd
@@ -13,28 +16,27 @@ spec:
     metadata:
       labels:
         app: ci-cd
-  template:
-    metadata:
-      labels:
-        app: ci-cd
     spec:
       containers:
         - name: ci-cd
-          # Since we are local, we will build this image directly into the local daemon
           image: local/ci-cd:latest
-          imagePullPolicy: Never
           ports:
-            - containerPort: 8080
+            - containerPort: 8082
+          readinessProbe:
+            httpGet:
+              path: /actuator/health  # <-- Production ready health check!
+              port: 8082
+            initialDelaySeconds: 15   # Gives Spring Boot time to start up before checking
+            periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: ci-cd-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: ci-cd
   ports:
     - port: 8082
       targetPort: 8082
-      nodePort: 32000

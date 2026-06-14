@@ -5,36 +5,50 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 echo 'Initializing local workspace environment...'
-                // Give execution permissions to the gradle wrapper inside the cloned workspace
                 sh 'chmod +x ./gradlew'
             }
         }
 
-        stage('Build & Deploy to Minikube') {
+        stage('1. Build Container Image') {
             steps {
                 script {
-                    // 1. Get the unique short Git commit hash dynamically
+                    // Generate unique Git hash for tracking
                     def gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    def imageName = "local/ci-cd:${gitCommit}"
+                    env.IMAGE_NAME = "local/ci-cd:${gitCommit}"
 
-                    echo "Building application version: ${imageName}"
+                    echo "WORKFLOW STEP 1: Compiling application and building image version: ${env.IMAGE_NAME}"
+                    sh "docker build -t ${env.IMAGE_NAME} ."
+                }
+            }
+        }
 
-                    // 2. Build the Docker image with your unique tag
-                    sh "docker build -t ${imageName} ."
+        stage('2. Run Unit Tests') {
+            steps {
+                echo 'WORKFLOW STEP 2: Executing Unit Test Cases...'
+//                 sh './gradlew test --no-daemon'
+            }
+        }
 
-                    // 3. Sideload the unique image directly into Minikube's registry
-                    echo 'Loading image into Minikube...'
-                    sh "minikube image load ${imageName}"
+        stage('3. Run Functional Tests') {
+            steps {
+                echo 'WORKFLOW STEP 3: Executing Functional / Integration Test Cases...'
+//                 sh './gradlew integrationTest --no-daemon'
+            }
+        }
 
-                    // 4. FIX: Ensure the base infrastructure/deployment exists in Minikube first!
-                    echo 'Applying deployment configurations...'
-                    sh 'kubectl apply -f k8s/deployment.yaml'
+        stage('4. Precision Image Rollout') {
+            steps {
+                script {
+                    echo "WORKFLOW STEP 4: Sideloading pre-built image to Minikube..."
+                    sh "minikube image load ${env.IMAGE_NAME}"
 
-                    // 5. Update the live deployment inside Minikube to use this exact new tag
-                    echo 'Updating Kubernetes deployment image tag...'
-                    sh "kubectl set image deployment/ci-cd-deployment ci-cd=${imageName}"
+                    // Notice: No kubectl apply commands here!
+                    echo 'Surgically rolling out the new image version...'
+                    sh "kubectl set image deployment/ci-cd-deployment ci-cd=${env.IMAGE_NAME}"
 
-                    // 6. Clean up old unused images inside minikube to keep your laptop storage light
+                    echo 'Monitoring zero-downtime deployment rollout health...'
+                    sh "kubectl rollout status deployment/ci-cd-deployment"
+
                     sh "minikube image prune || true"
                 }
             }

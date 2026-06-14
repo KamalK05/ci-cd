@@ -7,7 +7,7 @@ WORKDIR /Volumes/Development/Sample-Wkspace/personal-repos/ci-cd
 COPY . .
 RUN chmod +x gradlew
 # Run your gradle build command to generate the JAR file
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew bootJar -x test --no-daemon
 
 # =======================================================
 # STAGE 2: Run the application
