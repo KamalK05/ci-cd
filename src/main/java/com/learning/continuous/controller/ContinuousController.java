@@ -17,7 +17,7 @@ public class ContinuousController {
 
     @GetMapping("/v1/getCicdUser/{userId}")
     public CicdResponse getCicdUser() {
-        log.info("--------- /v1/getCicdUser is executed -------- ");
+        log.info("----------- /v1/getCicdUser is executed ---------- ");
         return new CicdResponse("My Cicd user fetch is working fine!!");
     }
 }
