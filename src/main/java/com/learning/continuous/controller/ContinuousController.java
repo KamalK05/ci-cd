@@ -14,4 +14,10 @@ public class ContinuousController {
         log.info("--------- /v1/getCiCdInfo is executed -------- ");
         return new CicdResponse("My Cicd pipeline is working fine!!");
     }
+
+    @GetMapping("/v1/getCicdUser/{userId}")
+    public CicdResponse getCicdUser() {
+        log.info("--------- /v1/getCicdUser is executed -------- ");
+        return new CicdResponse("My Cicd user fetch is working fine!!");
+    }
 }
