@@ -20,6 +20,7 @@ spec:
       containers:
         - name: ci-cd
           image: local/ci-cd:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           readinessProbe:
